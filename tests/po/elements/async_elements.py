@@ -1,3 +1,7 @@
+"""
+Async elements
+"""
+
 from selenium.webdriver.support.ui import WebDriverWait
 from tests.po.elements.base_elements import BaseElement
 
@@ -15,3 +19,4 @@ class AsyncElement(BaseElement):
             )
         )
         return super(AsyncElement, self).__call__(value, visible_filter)
+    

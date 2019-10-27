@@ -1,3 +1,7 @@
+"""
+Base elements
+"""
+
 from selenium.common.exceptions import TimeoutException, InvalidElementStateException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -11,6 +15,9 @@ class BrowserObject(object):
     browser = None
 
     def set_browser(self, browser):
+        """
+        Set browser
+        """
         self.browser = browser
 
 
@@ -21,15 +28,32 @@ class BaseElement(BrowserObject):
     locator = None
 
     def __init__(self, locator):
+        """
+        Initalise variable
+        """
         self.locator = locator
 
     def __call__(self, value=None, visible_filter=False):
+        """
+        Return a list of displayed elements
+        :param value: value to be filled into the field
+        :param visible_filter: filter to filter the displayed elements
+        """
         WebDriverWait(self.browser, 1).until(
-            lambda driver: len(driver.find_elements_by_css_selector(self.locator)),
+        lambda driver: len(driver.find_elements_by_css_selector(self.locator)),
             "URL: {0} | Waiting for {1}, but didn't show up in time".format(self.browser.current_url, self.locator)
         )
         elements = self.browser.find_elements_by_css_selector(self.locator)
-        return [e for e in elements if e.is_displayed()] if visible_filter else elements
+        
+        result = []
+        for item in elements:
+            if item.is_displayed():
+                result.append(item)
+                
+        if visible_filter:
+            return result
+        else:
+            return elements
 
     # -------- action method  --------#
     def click_field(self, index=0):
@@ -37,6 +61,7 @@ class BaseElement(BrowserObject):
         find a field on the page to click.
         :param index: which field you want to fill
         """
+        
         try:
             element = self()[index]
             self.browser.execute_script('arguments[0].scrollIntoView(false)', element)
@@ -51,6 +76,7 @@ class BaseElement(BrowserObject):
         :param index: which field you want to fill
         :param value: value to be filled into the field
         """
+        
         try:
             field = self()[index]
             field.clear()
@@ -67,6 +93,7 @@ class BaseElement(BrowserObject):
         Key down action on website
         :param key: Key
         """
+        
         actions = ActionChains(self.browser)
         actions.key_down(key)
         actions.perform()
@@ -78,6 +105,9 @@ class ElementCollection(BrowserObject):
     """
 
     def set_browser(self, browser):
+        """
+        Set browser element
+        """
         self.browser = browser
         for elements in self.__dict__.values():
             if isinstance(elements, BaseElement):
